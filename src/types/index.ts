@@ -11,7 +11,7 @@ export type Pill = {
   imgUrl: string;
 };
 
-export type Basket = {
+export type Cart = {
   shoplist: Pill[];
 };
 
