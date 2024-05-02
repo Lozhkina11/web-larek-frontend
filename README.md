@@ -42,76 +42,143 @@ yarn build
 ```
 ### Компоненты модели данных (бизнес-логика)
 
+/**
+ * Базовая модель
+ * */
+ // Принимает данные для хранения, EventEmitter
+class Model<T> {
+  constructor(data: Partial<T>, protected events: EventEmitter) {}
+
+  // Вызывает Event
+  notifyObservers(event: string, info?: object) {}
+}
+
+/*
+  * Класс, описывающий состояние приложения
+  * */
+class GlobalState extends Model<IGlobalState> {
+  // Корзина
+  Cart: Pill[] = [];
+
+  // Массив со всеми товарами
+  store: Pill[];
+
+  // Заказ
+   order: IOrder = {
+    items?: [],
+    typeOfPay?: '',
+    address?: '';
+    email?: '';
+    phone?: '';
+    totalSynapse?: '';
+  }
+  
+**Методы:**
+  - `addItemToCart(value: Pill): void`: Добавление товара в корзину.
+  - `removeItemFromCart(id: string): void`: Удаление товара из корзины.
+  - `clearCart(): void`: Полная очистка корзины.
+  - `getCartItems(): number`:  Получение списка товаров в корзине.
+  - `getTotalCartPrice(): number`: Метод получения суммы цены товаров в корзине.
+}
+
 #### Класс EventEmitter
 
 Реализует паттерн "Наблюдатель" и позволяет подписываться на события и уведомлять о наступлении события.
 
 **Методы:**
-  - `on(eventName: string, handler: Function)`: Подписка на событие.
+  - `on<T extends object>(eventName: EventName, callback: (event: T) => void) {}`: Подписка на событие.
     *Описание:* Позволяет подписаться на определенное событие и указать функцию-обработчик.
-  - `off(eventName: string, handler: Function)`: Отписка от события.
-    *Описание:* Позволяет отписаться от определенного события.
-  - `emit(eventName: string, ...args: any[])`: Уведомление подписчиков о наступлении события с передачей аргументов.
-    *Описание:* Уведомляет всех подписчиков о наступлении определенного события и передает им дополнительные аргументы.
+  - `off(eventName: EventName, callback: Subscriber) {}`: Отписка от события.
+    *Описание:* Убирает колбэк с события.
+  - `emit<T extends object>(eventName: string, data?: T) {}`: Уведомление подписчиков о наступлении события с передачей аргументов.
+    *Описание:* Вызывает событие.
 
-#### Класс AppData
+#### Класс Api
+/*
+  * Класс для работы с Api
+  * */
 
-Класс AppData является моделью данных, отвечающей за хранение и обработку информации, используемой всеми функционалами проекта.
-
-**Методы:**
-  - `getDataFromServer(): any`: Метод для получения данных с сервера.
-    *Описание:* Получает данные с сервера и возвращает их.
-    *Входные параметры:* Отсутствуют.
-    *Выходные данные:* Данные, полученные с сервера.
-  - `sendDataToServer(data: any): any`: Метод для отправки данных на сервер.
-    *Описание:* Отправляет данные на сервер и возвращает ответ от сервера, например, подтверждение сохранения данных.
-    *Входные параметры:*
-       `data`: Данные для отправки на сервер.
-    *Выходные данные:* Ответ от сервера.
-
+  - `async get(uri: string`: Get запрос.
+  - `async post(uri: string, data: object)`: Post запрос.
+  - `protected async handleResponse(response: Response): Promise<Partial<object>>`: Обрабатывает запрос и возвращает промис с данными.
 
 ### Компоненты представления
 ***1. Класс Component ***
 Базовый класс представления, от которого наследуются все другие классы представления.
 
-Наследники:
-Modal: Класс представления модального окна.
+class Component<T> {
+  protected constructor(protected readonly container: HTMLElement);
+}
+
 Cart: Класс представления корзины.
-Form: Класс представления формы.
-Success: Класс представления успешного завершения.
+
+class Cart extends Component<ICart> {
+
+  // constructor принимает имя, родительский элемент и обработчик событий
+  constructor(protected blockName: string, container: HTMLElement, protected events: EventEmitter);
+
+  // set для цены
+  set price(price: number);
+
+  // set для списка товаров 
+  set list(items: HTMLElement[]);
+
+  // Метод отключающий кнопку "Оформить"
+  disableButton(): void;
+}
+
 ***2. Классы представления без наследников: ***
 Page: Класс представления страницы приложения.
+
+class Page extends Component<IPage> {
+
+  // constructor принимает родительский элемент и обработчик событий
+  constructor(container: HTMLElement, protected events: EventEmitter);
+
+  // Сеттер для счётчика товаров в корзине
+  set counter(value: number);
+
+  // Сеттер для карточек товаров на странице
+  set store(items: HTMLElement[]);
+}
+
 Card: Класс представления карточки товара.
+
+class Card extends Component<ICard> {
+
+  // constructor принимает имя, родительский контейнер
+  // и объект с колбэк функциями
+  constructor(protected blockName: string, container: HTMLElement, interaction?: ICardInteraction);
+
+  // set и get для названия
+  set title(value: string);
+  get title(): string;
+
+   // set для цены
+  set price(value: number | null);
+
+  // set для категории
+  set category(value: Category);
+
+  // set для кратинки
+  set image(value: string);
+
+  // set выбора товара
+  set selected(value: boolean);
+}
+
 Order: Класс представления информации о заказе.
+
+class Order extends Form<IOrder> {
+
+  // constructor принимает имя, родительский элемент и обработчик событий
+  constructor(protected blockName: string, container: HTMLFormElement, protected events: EventEmitter);
+}
+
 Contacts: Класс представления контактной информации или страницы контактов.
 
-### Представитель (Presenter)
+class Contacts extends Form<IContacts> {
+  // constructor принимает родительский элемент и обработчик событий
+  constructor(container: HTMLFormElement, events: EventEmitter);
+}
 
-#### Класс CustomerPresenter
-
-Представитель, отвечающий за обработку данных покупателя и их передачу между моделью и представлением.
-
-**Методы:**
-  - `choosePaymentMethod(method: string): void`: Выбор способа оплаты.
-  - `setAddress(address: string): void`: Указание адреса.
-  - `setPhoneNumber(phoneNumber: string): void`: Указание номера телефона.
-  - `setEmail(email: string): void`: Указание адреса электронной почты.
-  - `clearCustomerData(): void`: Очистка данных покупателя.
-
-#### Класс CatalogPresenter
-
-Представитель, управляющий каталогом товаров и его отображением.
-
-**Методы:**
-  - `populateCatalog(): void`: Заполнение каталога товарами.
-  - `getCatalogItems(): any[]`: Получение списка товаров из каталога.
-
-#### Класс CartPresenter
-
-Представитель, управляющий корзиной покупок и её отображением.
-
-**Методы:**
-  - `addItemToCart(itemId: string): void`: Добавление товара в корзину.
-  - `removeItemFromCart(itemId: string): void`: Удаление товара из корзины.
-  - `clearCart(): void`: Полная очистка корзины.
-  - `getCartItems(): any[]`: Получение списка товаров в корзине.
