@@ -133,3 +133,15 @@ export function createElement<
     }
     return element;
 }
+//отображение цен
+
+// export function formatPrice(synapse: number) {
+//     const stringOfSynapse = synapse.toString();
+//     if (stringOfSynapse.length < 5) {
+//         return stringOfSynapse;
+//     } else {
+//         const reversedString = stringOfSynapse.split('').reverse();
+//         const formattedString = reversedString.map((s, i) => ((i + 1) % 3 === 0 ? ' ' + s : s)).reverse().join('');
+//         return formattedString;
+//     }
+// }

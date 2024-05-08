@@ -47,7 +47,7 @@ yarn build
  * */
  // Принимает данные для хранения, EventEmitter
 class Model<T> {
-  constructor(data: Partial<T>, protected events: EventEmitter) {}
+  constructor(data: Partial<T>, protected events: IEvents) {}
 
   // Вызывает Event
   notifyObservers(event: string, info?: object) {}
@@ -115,7 +115,7 @@ Cart: Класс представления корзины.
 class Cart extends Component<ICart> {
 
   // constructor принимает имя, родительский элемент и обработчик событий
-  constructor(protected blockName: string, container: HTMLElement, protected events: EventEmitter);
+  constructor(protected blockName: string, container: HTMLElement, protected events: IEvents);
 
   // set для цены
   set price(price: number);
@@ -133,7 +133,7 @@ Page: Класс представления страницы приложени�
 class Page extends Component<IPage> {
 
   // constructor принимает родительский элемент и обработчик событий
-  constructor(container: HTMLElement, protected events: EventEmitter);
+  constructor(container: HTMLElement, protected events: IEvents);
 
   // Сеттер для счётчика товаров в корзине
   set counter(value: number);
@@ -148,7 +148,7 @@ class Card extends Component<ICard> {
 
   // constructor принимает имя, родительский контейнер
   // и объект с колбэк функциями
-  constructor(protected blockName: string, container: HTMLElement, interaction?: ICardInteraction);
+  constructor(protected blockName: string, container: HTMLElement, actions?: ICardActions);
 
   // set и get для названия
   set title(value: string);
@@ -172,13 +172,13 @@ Order: Класс представления информации о заказ�
 class Order extends Form<IOrder> {
 
   // constructor принимает имя, родительский элемент и обработчик событий
-  constructor(protected blockName: string, container: HTMLFormElement, protected events: EventEmitter);
+  constructor(protected blockName: string, container: HTMLFormElement, protected events: IEvents);
 }
 
 Contacts: Класс представления контактной информации или страницы контактов.
 
 class Contacts extends Form<IContacts> {
   // constructor принимает родительский элемент и обработчик событий
-  constructor(container: HTMLFormElement, events: EventEmitter);
+  constructor(container: HTMLFormElement, events: IEvents);
 }
 

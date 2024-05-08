@@ -9,12 +9,22 @@ export type Category = {
 
 //описание самого товара, Card - оболочка 
 export type Pill = {
+  id: string;
   title: string;
   description: string;
   synapse: number | null;
   category: Category;
   imgUrl: string;
 };
+export interface IPill {
+  title: string;
+  description: string;
+  synapse: number | null;
+  category: Category;
+  imgUrl: string;
+  // был данный товар добавлен в корзину или нет
+  selected: boolean;
+}
 
 export type Cart = {
   shoplist: Pill[];
@@ -32,14 +42,17 @@ export type IContacts = {
   phone: string;
 }
 
-export type IOrder = {
+type PaymentType = 'cash' | 'card';
+
+interface IOrder {
   items?: string[];
-  typeOfPay?: boolean;
-  address?: string;
-  email?: string;
-  phone?: string;
-  totalSynapse?: number;
-};
+  typeOfPay: PaymentType;
+  total: number | null;
+  address: string;
+  email: string;
+  phone: string;
+}
+
 
 export type IOrderForm = {
   typeOfPay?: boolean;
@@ -48,12 +61,30 @@ export type IOrderForm = {
   phone?: string;
 }
 
+export type FormErrors = Partial<Record<keyof IOrderForm, string>>;
+
 export type IGlobalState = {
-   basket: Pill[];
+   cart: Pill[];
    store: Pill[];
    order: IOrder;
 }
 
-export type SuccessForm = {
-  price: number;
-};
+export interface IAppState {
+  cart: Pill[];
+  store: Pill[];
+  order: IOrder;
+  // Ошибки при заполнении форм
+  formErrors: FormErrors;
+  // Методы
+
+  addItemToCart(value: Pill): void;
+  removeItemFromCart(id: string): void;
+  clearCart(): void;
+  getCartItems(): number;
+  getTotalCartPrice(): number;
+  
+  // Валидация заказа
+  validateOrder(): boolean;
+   // Валидация контактной информации
+   validateForContacts(): boolean;
+}
