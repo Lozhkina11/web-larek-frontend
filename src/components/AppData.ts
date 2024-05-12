@@ -6,10 +6,10 @@ import { IOrder } from "./Order";
 export class Pill extends Model<IPill> {
   id: string;
   description: string;
-  imgUrl: string;
+  image: string;
   title: string;
   category: string;
-  synapse: number | null;
+  price: number | null;
   selected: boolean;
 }
 
@@ -51,7 +51,7 @@ export class AppState extends Model<IAppState> {
   }
 
   getTotalCartPrice() {
-    return this.order.items.reduce((a, c) => a + this.store.find(it => it.id === c).synapse, 0)
+    return this.order.items.reduce((a, c) => a + this.store.find(it => it.id === c).price, 0)
   }
 
   setStore(items: IPill[]) {
@@ -60,9 +60,9 @@ export class AppState extends Model<IAppState> {
         id: item.id,
         title: item.title,
         description: item.description,
-        synapse: item.synapse,
+        price: item.price,
         category: item.category,
-        imgUrl: item.imgUrl,
+        image: item.image,
         selected: false // Устанавливаем selected в false
     }));
     this.emitChanges('items:changed', { store: this.store });

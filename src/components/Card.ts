@@ -9,9 +9,9 @@ export interface ICard {
   id: string,
   title: string;
   description: string;
-  synapse: number | null;
+  price: number | null;
   category: Category;
-  imgUrl: string;
+  image: string;
   selected: boolean;
 }
 
@@ -22,7 +22,7 @@ export class Card extends Component<ICard> {
   // Ссылки на внутренние элементы карточки
 
   protected _title: HTMLElement;
-  protected _synapse: HTMLElement;
+  protected _price: HTMLElement;
   protected _category: HTMLElement;
   protected _image: HTMLImageElement;
   protected _button: HTMLButtonElement;
@@ -37,7 +37,7 @@ export class Card extends Component<ICard> {
     super(container);
 
     this._title = ensureElement<HTMLElement>(`.${blockName}__title`, container);
-    this._synapse = container.querySelector(`.${blockName}__price`);
+    this._price = container.querySelector(`.${blockName}__price`);
     this._category = container.querySelector(`.${blockName}__category`);
     this._image = ensureElement<HTMLImageElement>(`.${blockName}__image`, container);
     this._button = container.querySelector(`.${blockName}__button`);
@@ -83,14 +83,14 @@ export class Card extends Component<ICard> {
       this._button.disabled = value;
     }
   }
-  set synapse(value: number | null) {
+  set price(value: number | null) {
     if (value !== null) {
-        this._synapse.textContent = formatPrice(value) + ' синапсов';
+        this._price.textContent = formatPrice(value) + ' синапсов';
         if (this._button) {
             this._button.disabled = false;
         }
     } else {
-        this._synapse.textContent = 'Бесценно';
+        this._price.textContent = 'Бесценно';
         if (this._button) {
             this._button.disabled = true;
         }

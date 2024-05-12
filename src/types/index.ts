@@ -14,7 +14,7 @@ export type Category = {
 //   description: string;
 //   synapse: number | null;
 //   category: Category;
-//   imgUrl: string;
+//   image: string;
 // };
 
 import { Pill } from "../components/AppData";
@@ -22,9 +22,9 @@ export interface IPill {
   id: string;
   title: string;
   description: string;
-  synapse: number | null;
+  price: number | null;
   category: Category;
-  imgUrl: string;
+  image: string;
   // был данный товар добавлен в корзину или нет
   selected: boolean;
 }

@@ -1,7 +1,5 @@
 import './scss/styles.scss';
 
-
-// import {AuctionAPI} from "./components/AuctionAPI";
 import {API_URL, CDN_URL} from "./utils/constants";
 import {EventEmitter} from "./components/base/events";
 import {AppState} from "./components/AppData";
@@ -51,18 +49,22 @@ const order = new Order('order', cloneTemplate(orderTemplate), events);
 
 
 // Получение картинок с сервера
-api.get('/pill')
+api.get('/product')
 .then((response: ApiAnswer) => {
-    // Перебираем элементы ответа и обновляем URL изображений
-    const updatedItems = response.items.map((item: IPill) => ({
-        ...item,
-        imgUrl: CDN_URL + item.imgUrl
-    }));
-    appData.setStore(updatedItems); // Устанавливаем обновленные элементы в объект appData
+    // // Перебираем элементы ответа и обновляем URL изображений
+    // const updatedItems = response.items.map((item: IPill) => ({
+    //     ...item,
+    //     imgUrl: CDN_URL + item.imgUrl
+    appData.setStore(response.items as IPill[]);
+  
+    // appData.setStore(updatedItems); // Устанавливаем обновленные элементы в объект appData
 })
 .catch((err) => {
     console.error(err);
 });
+
+
+
 
 // Изменились элементы каталога
 events.on('items:changed', () => {
@@ -73,9 +75,9 @@ events.on('items:changed', () => {
     return pill.render({
       id: item.id,
       title: item.title,
-      imgUrl: item.imgUrl,
+      image: item.image,
       category: item.category,
-      synapse: item.synapse,
+      price: item.price,
     });
   });
 });
@@ -92,10 +94,10 @@ events.on('card:select', (item: IPill) => {
     content: pill.render({
       id: item.id,
       title: item.title,
-      imgUrl: item.imgUrl,
+      image: item.image,
       category: item.category,
       description: item.description,
-      synapse: item.synapse,
+      price: item.price,
       selected: item.selected
     }),
   });
@@ -122,7 +124,7 @@ events.on('basket:open', () => {
     );
     return storeItem.render({
       title: item.title,
-      total: item.synapse,
+      total: item.price,
       index: index + 1,
     });
   });

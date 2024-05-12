@@ -135,12 +135,12 @@ export function createElement<
 }
 //отображение цен
 
-export function formatPrice(synapse: number) {
-    const stringOfSynapse = synapse.toString();
-    if (stringOfSynapse.length < 5) {
-        return stringOfSynapse;
+export function formatPrice(price: number) {
+    const stringOfPrice = price.toString();
+    if (stringOfPrice.length < 5) {
+        return stringOfPrice;
     } else {
-        const reversedString = stringOfSynapse.split('').reverse();
+        const reversedString = stringOfPrice.split('').reverse();
         const formattedString = reversedString.map((s, i) => ((i + 1) % 3 === 0 ? ' ' + s : s)).reverse().join('');
         return formattedString;
     }
