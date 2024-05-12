@@ -58,10 +58,10 @@ class Model<T> {
   * */
 class GlobalState extends Model<IGlobalState> {
   // Корзина
-  Cart: Pill[] = [];
+  Cart: IPill[] = [];
 
   // Массив со всеми товарами
-  store: Pill[];
+  store: IPill[];
 
   // Заказ
    order: IOrder = {

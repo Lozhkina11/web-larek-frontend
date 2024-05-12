@@ -7,7 +7,11 @@ import { Form } from './common/Form';
 export interface IOrder {
   address: string;
   // Способ оплаты
-  typeOfPay: boolean;
+  typeOfPay: string;
+  items: [];
+  total: null | number;
+  email: string;
+  phone: string;
 }
 
 /*

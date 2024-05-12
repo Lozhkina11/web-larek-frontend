@@ -17,11 +17,15 @@ export abstract class Component<T> {
     }
 
     // Сменить статус блокировки
-    setDisabled(element: HTMLElement, state: boolean): void {
-      if (state) element.setAttribute('disabled', 'disabled');
-      else element.removeAttribute('disabled');
-    }
-  
+    // setDisabled(element: HTMLElement, state: boolean): void {
+    //   if (state) element.setAttribute('disabled', 'disabled');
+    //   else element.removeAttribute('disabled');
+    // }
+   setDisabled(element: HTMLElement, state: boolean): void {
+    if (state) element.setAttribute('disabled', 'disabled');
+    else element.removeAttribute('disabled');
+  }
+
 
     // Скрыть
     protected setHidden(element: HTMLElement) {

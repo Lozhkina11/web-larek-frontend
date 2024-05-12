@@ -1,16 +1,17 @@
 import { Component } from './base/Component';
-import {Category} from '../types';
-import { ensureElement } from '../utils/utils';
+import {Category, CategoryTitle} from '../types';
+import { ensureElement, formatPrice } from '../utils/utils';
 import { CDN_URL } from '../utils/constants';
 
 
 // Интерфейс для оболочки карточки
 export interface ICard {
+  id: string,
   title: string;
   description: string;
   synapse: number | null;
   category: Category;
-  image: string;
+  imgUrl: string;
   selected: boolean;
 }
 
@@ -29,7 +30,7 @@ export class Card extends Component<ICard> {
   // Конструктор принимает имя блока, родительский контейнер
   // и объект с колбэк функциями
   constructor(
-    blockName: string,
+    protected blockName: string,
     container: HTMLElement,
     actions?: ICardActions
   ) {
@@ -82,10 +83,47 @@ export class Card extends Component<ICard> {
       this._button.disabled = value;
     }
   }
+  set synapse(value: number | null) {
+    if (value !== null) {
+        this._synapse.textContent = formatPrice(value) + ' синапсов';
+        if (this._button) {
+            this._button.disabled = false;
+        }
+    } else {
+        this._synapse.textContent = 'Бесценно';
+        if (this._button) {
+            this._button.disabled = true;
+        }
+    }
+}
+
+  // Сеттер для категории
+  set category(value: CategoryTitle) {
+    this._category.textContent = value;
+  }
+
 }
 
 
+export class StoreItem extends Card {
+  constructor(container: HTMLElement, actions?: ICardActions) {
+    super('card', container, actions);
+  }
+}
 
+export class StoreItemPreview extends Card {
+  protected _description: HTMLElement;
+
+  constructor(container: HTMLElement, actions?: ICardActions) {
+    super('card', container, actions);
+
+    this._description = container.querySelector(`.${this.blockName}__text`);
+  }
+
+  set description(value: string) {
+    this._description.textContent = value;
+  }
+}
 
 
 

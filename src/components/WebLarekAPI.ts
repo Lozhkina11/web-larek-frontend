@@ -1,6 +1,6 @@
-// import { Api, ApiListResponse } from './base/api';
-// import {IOrder, IOrderResult, ICard, IPill} from "../types";
-
+import { Api, ApiListResponse } from './base/api';
+import { IPill } from "../types";
+import { ICard } from "../components/Card"
 // export interface IWebLarekAPI {
 //     getCardList: () => Promise<ICard[]>;
 //     getCardItem: (id: string) => Promise<ICard>;
@@ -14,21 +14,29 @@
 //         this.cdn = cdn;
 //     }
 
-//     getCardList(): Promise<ICard[]> {
-//         return this.get(`/pill`).then(
-//             (item: IPill) => ({
-//                 ...item,
-//                 image: this.cdn + item.image,
-//             })
-//         );
-//     }
+    // getCardList(): Promise<ICard[]> {
+    //     return this.get(`/pill`).then((items: IPill[]) => {
+    //         return items.map(item => ({
+    //             ...item,
+    //             imgUrl: this.cdn + item.imgUrl,
+    //         }));
+    //     });
+    // }
+    
 
-//     getCardItem(id: string): Promise<IPill> {
-//         return this.get(`/pill/${id}`).then(
-//             (item: IPill) => ({
-//                 ...item,
-//                 image: this.cdn + item.image,
-//             })
-//         );
+    // getLotList(): Promise<ILot[]> {
+    //     return this.get('/lot').then((data: ApiListResponse<ILot>) =>
+    //         data.items.map((item) => ({
+    //             ...item,
+    //             image: this.cdn + item.image
+    //         }))
+    //     );
+    // }
+//     getCardItem(id: string): Promise<ICard> {
+//         return this.get(`/pill/${id}`).then((item: IPill) => ({
+//             ...item,
+//             imgUrl: this.cdn + item.imgUrl,
+//         }));
 //     }
+    
 // }

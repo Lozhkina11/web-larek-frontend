@@ -8,25 +8,28 @@ import {AppState} from "./components/AppData";
 import {Page} from "./components/Page";
 import {cloneTemplate, createElement, ensureElement} from "./utils/utils";
 import {Modal} from "./components/common/Modal";
-import {Cart} from "./components/common/Cart";
-import {IOrderForm} from "./types";
+import {Cart, StoreItemCart} from "./components/common/Cart";
+import {ApiAnswer,IOrderForm, IPill} from "./types";
 import {Order,  Contacts} from "./components/Order";
 import {Success} from "./components/common/Success";
+import { Api, ApiListResponse } from './components/base/api';
+import {StoreItemPreview, StoreItem} from "./components/Card";
+// import {WebLarekAPI} from "./components/WebLarekAPI"
 
 
 const events = new EventEmitter();
-const api = new AuctionAPI(CDN_URL, API_URL);
+const api = new Api (API_URL);
 
 
 // Все шаблоны
-const storeProductTemplate =
-  ensureElement<HTMLTemplateElement>('#card-catalog');
 const cardPreviewTemplate = ensureElement<HTMLTemplateElement>('#card-preview');
+const successTemplate = ensureElement<HTMLTemplateElement>('#success');
+const orderTemplate = ensureElement<HTMLTemplateElement>('#order');
 const basketTemplate = ensureElement<HTMLTemplateElement>('#basket');
 const cardBasketTemplate = ensureElement<HTMLTemplateElement>('#card-basket');
-const orderTemplate = ensureElement<HTMLTemplateElement>('#order');
+const cardCatalogTemplate = ensureElement<HTMLTemplateElement>('#card-catalog');
 const contactsTemplate = ensureElement<HTMLTemplateElement>('#contacts');
-const successTemplate = ensureElement<HTMLTemplateElement>('#success')
+
 
 // Модель данных приложения
 const appData = new AppState({}, events);
@@ -35,77 +38,82 @@ const appData = new AppState({}, events);
 const page = new Page(document.body, events);
 const modal = new Modal(ensureElement<HTMLElement>('#modal-container'), events);
 
-// Переиспользуемые компоненты
-const basket = new Basket('basket', cloneTemplate(basketTemplate), events);
-const order = new Order('order', cloneTemplate(orderTemplate), events)
-const contacts = new Contacts(cloneTemplate(contactsTemplate), events);
+
+// Переиспользуемые части интерфейса
+const cart = new Cart('basket', cloneTemplate(basketTemplate), events);
 const success = new Success('order-success', cloneTemplate(successTemplate), {
   onClick: () => {
     events.emit('modal:close')
     modal.close()
   }
 })
+const order = new Order('order', cloneTemplate(orderTemplate), events);
 
-// Получаем лоты с сервера
-api
-  .get('/product')
-  .then((res: ApiResponse) => {
-    appData.setStore(res.items as IProduct[]);
-  })
-  .catch((err) => {
+
+// Получение картинок с сервера
+api.get('/pill')
+.then((response: ApiAnswer) => {
+    // Перебираем элементы ответа и обновляем URL изображений
+    const updatedItems = response.items.map((item: IPill) => ({
+        ...item,
+        imgUrl: CDN_URL + item.imgUrl
+    }));
+    appData.setStore(updatedItems); // Устанавливаем обновленные элементы в объект appData
+})
+.catch((err) => {
     console.error(err);
-  });
+});
 
 // Изменились элементы каталога
 events.on('items:changed', () => {
   page.store = appData.store.map((item) => {
-    const product = new StoreItem(cloneTemplate(storeProductTemplate), {
+    const pill = new StoreItem(cloneTemplate(cardPreviewTemplate), {
       onClick: () => events.emit('card:select', item),
     });
-    return product.render({
+    return pill.render({
       id: item.id,
       title: item.title,
-      image: item.image,
+      imgUrl: item.imgUrl,
       category: item.category,
-      price: item.price,
+      synapse: item.synapse,
     });
   });
 });
 
 // Открытие карточки
-events.on('card:select', (item: Product) => {
+events.on('card:select', (item: IPill) => {
   page.locked = true;
-  const product = new StoreItemPreview(cloneTemplate(cardPreviewTemplate), {
+  const pill = new StoreItemPreview(cloneTemplate(cardPreviewTemplate), {
     onClick: () => {
       events.emit('card:toBasket', item)
     },
   });
   modal.render({
-    content: product.render({
+    content: pill.render({
       id: item.id,
       title: item.title,
-      image: item.image,
+      imgUrl: item.imgUrl,
       category: item.category,
       description: item.description,
-      price: item.price,
+      synapse: item.synapse,
       selected: item.selected
     }),
   });
 });
 
-// Добавление товара в корзину
-events.on('card:toBasket', (item: Product) => {
-  item.selected = true;
-  appData.addToBasket(item);
-  page.counter = appData.getBasketAmount();
-  modal.close();
-})
+// // Добавление товара в корзину
+// events.on('card:toBasket', (item: IPill) => {
+//   item.selected = true;
+//   appData.addItemToCart(item);
+//   page.counter = appData.getCartItems();
+//   modal.close();
+// })
 
-// Открытие корзины
+ // Открытие корзины
 events.on('basket:open', () => {
   page.locked = true
-  const basketItems = appData.basket.map((item, index) => {
-    const storeItem = new StoreItemBasket(
+  const cartItems = appData.cart.map((item, index) => {
+    const storeItem = new StoreItemCart(
       'card',
       cloneTemplate(cardBasketTemplate),
       {
@@ -114,103 +122,105 @@ events.on('basket:open', () => {
     );
     return storeItem.render({
       title: item.title,
-      price: item.price,
+      total: item.synapse,
       index: index + 1,
     });
   });
+  console.log(cartItems)
+  cart.list = cartItems
   modal.render({
-    content: basket.render({
-      list: basketItems,
-      price: appData.getTotalBasketPrice(),
+    content: cart.render({
+      // list: cartItems,
+      total: appData.getTotalCartPrice(),
     }),
   });
+  
 });
 
-// Удалить товар из корзины
-events.on('basket:delete', (item: Product) => {
-  appData.deleteFromBasket(item.id);
-  item.selected = false;
-  basket.price = appData.getTotalBasketPrice();
-  page.counter = appData.getBasketAmount();
-  basket.refreshIndices();
-  if (!appData.basket.length) {
-    basket.disableButton();
-  }
-})
+// // Удалить товар из корзины
+// events.on('basket:delete', (item: Product) => {
+//   appData.deleteFromBasket(item.id);
+//   item.selected = false;
+//   basket.price = appData.getTotalBasketPrice();
+//   page.counter = appData.getBasketAmount();
+//   basket.refreshIndices();
+//   if (!appData.basket.length) {
+//     basket.disableButton();
+//   }
+// })
 
-// Оформить заказ
-events.on('basket:order', () => {
-  modal.render({
-    content: order.render(
-      {
-        address: '',
-        valid: false,
-        errors: []
-      }
-    ),
-  });
-});
+// // Оформить заказ
+// events.on('basket:order', () => {
+//   modal.render({
+//     content: order.render(
+//       {
+//         address: '',
+//         valid: false,
+//         errors: []
+//       }
+//     ),
+//   });
+// });
 
-// Изменилось состояние валидации заказа
-events.on('orderFormErrors:change', (errors: Partial<IOrderForm>) => {
-  const { payment, address } = errors;
-  order.valid = !payment && !address;
-  order.errors = Object.values({ payment, address }).filter(i => !!i).join('; ');
-});
+// // Изменилось состояние валидации заказа
+// events.on('orderFormErrors:change', (errors: Partial<IOrderForm>) => {
+//   const { payment, address } = errors;
+//   order.valid = !payment && !address;
+//   order.errors = Object.values({ payment, address }).filter(i => !!i).join('; ');
+// });
 
-// Изменилось состояние валидации контактов
-events.on('contactsFormErrors:change', (errors: Partial<IOrderForm>) => {
-  const { email, phone } = errors;
-  contacts.valid = !email && !phone;
-  contacts.errors = Object.values({ phone, email }).filter(i => !!i).join('; ');
-});
+// // Изменилось состояние валидации контактов
+// events.on('contactsFormErrors:change', (errors: Partial<IOrderForm>) => {
+//   const { email, phone } = errors;
+//   contacts.valid = !email && !phone;
+//   contacts.errors = Object.values({ phone, email }).filter(i => !!i).join('; ');
+// });
 
-// Изменились введенные данные
-events.on('orderInput:change', (data: { field: keyof IOrderForm, value: string }) => {
-  appData.setOrderField(data.field, data.value);
-});
+// // Изменились введенные данные
+// events.on('orderInput:change', (data: { field: keyof IOrderForm, value: string }) => {
+//   appData.setOrderField(data.field, data.value);
+// });
 
-// Заполнить телефон и почту
-events.on('order:submit', () => {
-  appData.order.total = appData.getTotalBasketPrice()
-  appData.setItems();
-  modal.render({
-    content: contacts.render(
-      {
-        valid: false,
-        errors: []
-      }
-    ),
-  });
-})
+// // Заполнить телефон и почту
+// events.on('order:submit', () => {
+//   appData.order.total = appData.getTotalBasketPrice()
+//   appData.setItems();
+//   modal.render({
+//     content: contacts.render(
+//       {
+//         valid: false,
+//         errors: []
+//       }
+//     ),
+//   });
+// })
 
-// Покупка товаров
-events.on('contacts:submit', () => {
-  api.post('/order', appData.order)
-    .then((res) => {
-      events.emit('order:success', res);
-      appData.clearBasket();
-      appData.refreshOrder();
-      order.disableButtons();
-      page.counter = 0;
-      appData.resetSelected();
-    })
-    .catch((err) => {
-      console.log(err)
-    })
-})
+// // Покупка товаров
+// events.on('contacts:submit', () => {
+//   api.post('/order', appData.order)
+//     .then((res) => {
+//       events.emit('order:success', res);
+//       appData.clearBasket();
+//       appData.refreshOrder();
+//       order.disableButtons();
+//       page.counter = 0;
+//       appData.resetSelected();
+//     })
+//     .catch((err) => {
+//       console.log(err)
+//     })
+// })
 
-// Окно успешной покупки
-events.on('order:success', (res: ApiListResponse<string>) => {
-  modal.render({
-    content: success.render({
-      description: res.total
-    })
-  })
-})
+// // Окно успешной покупки
+// events.on('order:success', (res: ApiListResponse<string>) => {
+//   modal.render({
+//     content: success.render({
+//       description: res.total
+//     })
+//   })
+// })
 
-// Закрытие модального окна
+// // Закрытие модального окна
 events.on('modal:close', () => {
   page.locked = false;
-  appData.refreshOrder();
 });

@@ -1,6 +1,6 @@
-export type CategoryTitle = {
-  title: 'софт-скил' | 'хард-скил' | 'другое' | 'дополнительное' | 'кнопка';
-}
+export type CategoryTitle = 
+  
+  'софт-скил' | 'хард-скил' | 'другое' | 'дополнительное' | 'кнопка';
 
 export type Category = {
   title: CategoryTitle;
@@ -8,15 +8,18 @@ export type Category = {
 };
 
 //описание самого товара, Card - оболочка 
-export type Pill = {
-  id: string;
-  title: string;
-  description: string;
-  synapse: number | null;
-  category: Category;
-  imgUrl: string;
-};
+// export type Pill = {
+  
+//   title: string;
+//   description: string;
+//   synapse: number | null;
+//   category: Category;
+//   imgUrl: string;
+// };
+
+import { Pill } from "../components/AppData";
 export interface IPill {
+  id: string;
   title: string;
   description: string;
   synapse: number | null;
@@ -27,7 +30,7 @@ export interface IPill {
 }
 
 export type Cart = {
-  shoplist: Pill[];
+  store: Pill[];
 };
 
 //ICart - описывает всю кщрзину (список товаров + цена)
@@ -82,9 +85,15 @@ export interface IAppState {
   clearCart(): void;
   getCartItems(): number;
   getTotalCartPrice(): number;
+  // setStore(items: IPill[]): void;
   
   // Валидация заказа
   validateOrder(): boolean;
    // Валидация контактной информации
    validateForContacts(): boolean;
+}
+
+
+export type ApiAnswer = {
+  items:IPill[]
 }

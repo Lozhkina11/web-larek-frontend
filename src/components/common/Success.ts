@@ -1,4 +1,5 @@
 import {Component} from "../base/Component";
+import {formatPrice} from "../../utils/utils"
 
 interface ISuccess {
     total: number;
@@ -30,7 +31,7 @@ export class Success extends Component<ISuccess> {
   }
 
   set description(value: number) {
-    this._description.textContent = 'Списано ' + handlePrice(value) + ' синапсов'
+    this._description.textContent = 'Списано ' + formatPrice(value) + ' синапсов'
   }
 }
 

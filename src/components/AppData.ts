@@ -1,16 +1,24 @@
-import {Model} from "../components/base/Model";
-import {FormErrors, IAppState, Pill} from "../types";
-// import { IOrder } from "./common/Order";
+import {Model} from "./base/Model";
+import {FormErrors, IAppState, IPill} from "../types";
+import { IOrder } from "./Order";
 
-export type ShoplistChangeEvent = {
-    catalog: Pill[]
-};
+
+export class Pill extends Model<IPill> {
+  id: string;
+  description: string;
+  imgUrl: string;
+  title: string;
+  category: string;
+  synapse: number | null;
+  selected: boolean;
+}
+
 export class AppState extends Model<IAppState> {
   // Корзина с товарами
-  cart: Pill[] = [];
+  cart: IPill[] = [];
 
   // Массив со всеми товарами
-  store: Pill[];
+  store: IPill[];
   
   //заказ
   order: IOrder = {
@@ -22,10 +30,11 @@ export class AppState extends Model<IAppState> {
     phone: '',
   };
 
+
   // ошибки в форме
   formErrors: FormErrors = {};
 
-  addItemToCart(value: Pill) {
+  addItemToCart(value: IPill) {
     this.cart.push(value);
   }
 
@@ -44,6 +53,20 @@ export class AppState extends Model<IAppState> {
   getTotalCartPrice() {
     return this.order.items.reduce((a, c) => a + this.store.find(it => it.id === c).synapse, 0)
   }
+
+  setStore(items: IPill[]) {
+    // Проверка, что все объекты в массиве items соответствуют интерфейсу IPill
+    this.store = items.map((item) => ({
+        id: item.id,
+        title: item.title,
+        description: item.description,
+        synapse: item.synapse,
+        category: item.category,
+        imgUrl: item.imgUrl,
+        selected: false // Устанавливаем selected в false
+    }));
+    this.emitChanges('items:changed', { store: this.store });
+}
 
   validateOrder() {
     const errors: typeof this.formErrors = {};
