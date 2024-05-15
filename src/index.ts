@@ -104,12 +104,12 @@ events.on('card:select', (item: IPill) => {
 });
 
 // // Добавление товара в корзину
-// events.on('card:toBasket', (item: IPill) => {
-//   item.selected = true;
-//   appData.addItemToCart(item);
-//   page.counter = appData.getCartItems();
-//   modal.close();
-// })
+events.on('card:toBasket', (item: IPill) => {
+  item.selected = true;
+  appData.addItemToCart(item);
+  page.counter = appData.getCartItems();
+  modal.close();
+})
 
  // Открытие корзины
 events.on('basket:open', () => {
@@ -140,36 +140,36 @@ events.on('basket:open', () => {
 });
 
 // // Удалить товар из корзины
-// events.on('basket:delete', (item: Product) => {
-//   appData.deleteFromBasket(item.id);
-//   item.selected = false;
-//   basket.price = appData.getTotalBasketPrice();
-//   page.counter = appData.getBasketAmount();
-//   basket.refreshIndices();
-//   if (!appData.basket.length) {
-//     basket.disableButton();
-//   }
-// })
+events.on('basket:delete', (item: IPill) => {
+  appData.removeItemFromCart(item.id);
+  item.selected = false;
+  cart.total = appData.getTotalCartPrice();
+  page.counter = appData.getCartAmount();
+  cart.refreshIndices();
+  if (!appData.cart.length) {
+    cart.disableButton();
+  }
+})
 
 // // Оформить заказ
-// events.on('basket:order', () => {
-//   modal.render({
-//     content: order.render(
-//       {
-//         address: '',
-//         valid: false,
-//         errors: []
-//       }
-//     ),
-//   });
-// });
+events.on('basket:order', () => {
+  modal.render({
+    content: order.render(
+      {
+        address: '',
+        valid: false,
+        errors: []
+      }
+    ),
+  });
+});
 
 // // Изменилось состояние валидации заказа
-// events.on('orderFormErrors:change', (errors: Partial<IOrderForm>) => {
-//   const { payment, address } = errors;
-//   order.valid = !payment && !address;
-//   order.errors = Object.values({ payment, address }).filter(i => !!i).join('; ');
-// });
+events.on('orderFormErrors:change', (errors: Partial<IOrderForm>) => {
+  const { typeOfPay, address } = errors;
+  order.valid = !typeOfPay && !address;
+  order.errors = Object.values({ typeOfPay, address }).filter(i => !!i).join('; ');
+});
 
 // // Изменилось состояние валидации контактов
 // events.on('contactsFormErrors:change', (errors: Partial<IOrderForm>) => {
@@ -183,7 +183,7 @@ events.on('basket:open', () => {
 //   appData.setOrderField(data.field, data.value);
 // });
 
-// // Заполнить телефон и почту
+// // // Заполнить телефон и почту
 // events.on('order:submit', () => {
 //   appData.order.total = appData.getTotalBasketPrice()
 //   appData.setItems();
@@ -202,7 +202,7 @@ events.on('basket:open', () => {
 //   api.post('/order', appData.order)
 //     .then((res) => {
 //       events.emit('order:success', res);
-//       appData.clearBasket();
+//       appData.clearCart();
 //       appData.refreshOrder();
 //       order.disableButtons();
 //       page.counter = 0;
@@ -214,13 +214,13 @@ events.on('basket:open', () => {
 // })
 
 // // Окно успешной покупки
-// events.on('order:success', (res: ApiListResponse<string>) => {
-//   modal.render({
-//     content: success.render({
-//       description: res.total
-//     })
-//   })
-// })
+events.on('order:success', (res: ApiListResponse<string>) => {
+  modal.render({
+    content: success.render({
+      total: res.total
+    })
+  })
+})
 
 // // Закрытие модального окна
 events.on('modal:close', () => {

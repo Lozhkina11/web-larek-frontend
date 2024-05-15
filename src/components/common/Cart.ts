@@ -35,6 +35,7 @@ export class Cart extends Component<ICart> {
   protected _price: HTMLElement;
   // _synapse: HTMLElement;
   protected _button: HTMLButtonElement;
+  total: number;
 
   constructor(
     protected blockName: string,

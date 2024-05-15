@@ -54,6 +54,10 @@ export class AppState extends Model<IAppState> {
     return this.order.items.reduce((a, c) => a + this.store.find(it => it.id === c).price, 0)
   }
 
+  getCartAmount() {
+    return this.cart.length;
+  }
+
   setStore(items: IPill[]) {
     // Проверка, что все объекты в массиве items соответствуют интерфейсу IPill
     this.store = items.map((item) => ({

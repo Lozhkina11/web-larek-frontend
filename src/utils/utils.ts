@@ -136,12 +136,13 @@ export function createElement<
 //отображение цен
 
 export function formatPrice(price: number) {
-    const stringOfPrice = price.toString();
-    if (stringOfPrice.length < 5) {
-        return stringOfPrice;
-    } else {
-        const reversedString = stringOfPrice.split('').reverse();
-        const formattedString = reversedString.map((s, i) => ((i + 1) % 3 === 0 ? ' ' + s : s)).reverse().join('');
-        return formattedString;
-    }
+    const stringOfPrice = price.toString();return stringOfPrice.length < 5
+    ? stringOfPrice
+    : stringOfPrice
+      .split('')
+      .reverse()
+      .map((s, i) => ((i + 1) % 3 === 0 ? ' ' + s : s))
+      .reverse()
+      .join('');
 }
+
