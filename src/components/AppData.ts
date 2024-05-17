@@ -14,6 +14,9 @@ export class Pill extends Model<IPill> {
 }
 
 export class AppState extends Model<IAppState> {
+  static getTotalCartPrice(value: number) {
+    throw new Error('Method not implemented.');
+  }
   // Корзина с товарами
   cart: IPill[] = [];
 
@@ -51,7 +54,19 @@ export class AppState extends Model<IAppState> {
   }
 
   getTotalCartPrice() {
-    return this.order.items.reduce((a, c) => a + this.store.find(it => it.id === c).price, 0)
+    return this.cart.reduce((sum, next) => sum + next.price, 0);
+  }
+  calculateTotal(): number {
+    const items = Array.from(document.querySelectorAll('.basket__price')) as HTMLElement[];
+    return items.reduce((total, item) => {
+      const priceElement = item.querySelector('.basket__price');
+      if (priceElement) {
+        const priceString = priceElement.textContent!;
+        const price = parseFloat(priceString.replace(/\D/g, ''));
+        return total + price;
+      }
+      return total;
+    }, 0);
   }
 
   getCartAmount() {
@@ -96,5 +111,15 @@ export class AppState extends Model<IAppState> {
   this.formErrors = errors;
   this.events.emit('orderFormErrors:change', this.formErrors);
   return Object.keys(errors).length === 0;
+}
+refreshOrder() {
+  this.order = {
+    items: [],
+    total: null,
+    address: '',
+    email: '',
+    phone: '',
+    typeOfPay: ''
+  };
 }
 }

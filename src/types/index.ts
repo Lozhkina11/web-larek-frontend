@@ -76,6 +76,7 @@ export interface IAppState {
   cart: Pill[];
   store: Pill[];
   order: IOrder;
+  total: number | null;
   // Ошибки при заполнении форм
   formErrors: FormErrors;
   // Методы
