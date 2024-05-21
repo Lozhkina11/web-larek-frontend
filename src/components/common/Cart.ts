@@ -15,7 +15,7 @@ interface ICart {
   // Массив элементов списка 
   // list: Pill[]; 
   // Общая цена товаров 
-  total: number; 
+  total: number;
   // items: HTMLElement[]; 
   // selected: string[]; 
 } 
@@ -49,7 +49,7 @@ export class Cart extends Component<ICart> {
     } 
     if (this._button) { 
       this._button.addEventListener('click', () => 
-        this.events.emit('cart:order') 
+        this.events.emit('basket:order') 
       ); 
     } 
   } 
@@ -69,7 +69,7 @@ export class Cart extends Component<ICart> {
   //     // Если в корзине нет товаров (длина массива items равна 0), то блокируем кнопку 
   //     this.setDisabled(this._button, items.length === 0); 
   // } 
-  set selected(items: string[]) { 
+  set selected(items: []) { 
     if (items.length) { 
       this.setDisabled(this._button, false); 
     } else { 
@@ -84,9 +84,8 @@ export class Cart extends Component<ICart> {
     this._button.disabled = items.length === 0; 
   } 
  
-  set price(value: number) { 
-    this._price.textContent = formatPrice(value) + ' синапсов'; 
-    console.log(value, this._price); 
+  set total(value: number) { 
+    this._price.textContent = formatPrice(value) + ' синапсов';
   } 
  
   // Метод отключающий кнопку "Оформить" 

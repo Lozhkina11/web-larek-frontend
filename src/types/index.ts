@@ -48,7 +48,7 @@ export type IContacts = {
 type PaymentType = 'cash' | 'card';
 
 interface IOrder {
-  items?: string[];
+  items: string[];
   typeOfPay: PaymentType;
   total: number | null;
   address: string;
