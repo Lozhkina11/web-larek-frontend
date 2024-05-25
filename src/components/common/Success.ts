@@ -3,6 +3,7 @@ import { formatPrice } from '../../utils/utils';
 
 interface ISuccess {
   total: number;
+  id: string;
 }
 
 interface ISuccessActions {

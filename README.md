@@ -48,15 +48,12 @@ yarn build
  // Принимает данные для хранения, EventEmitter
 class Model<T> {
   constructor(data: Partial<T>, protected events: IEvents) {}
-
-  // Вызывает Event
-  notifyObservers(event: string, info?: object) {}
 }
 
 /*
   * Класс, описывающий состояние приложения
   * */
-class GlobalState extends Model<IGlobalState> {
+class AppState extends Model<IAppState> {
   // Корзина
   Cart: IPill[] = [];
 
@@ -66,7 +63,7 @@ class GlobalState extends Model<IGlobalState> {
   // Заказ
    order: IOrder = {
     items?: [],
-    typeOfPay?: '',
+    payment?: '',
     address?: '';
     email?: '';
     phone?: '';
@@ -118,13 +115,19 @@ class Cart extends Component<ICart> {
   constructor(protected blockName: string, container: HTMLElement, protected events: IEvents);
 
   // set для цены
-  set price(price: number);
+  set total(price: number);
+
+  // set выбора
+  set selected(items: []);
 
   // set для списка товаров 
   set list(items: HTMLElement[]);
 
   // Метод отключающий кнопку "Оформить"
   disableButton(): void;
+
+  // Метод для обновления индексов таблички при удалении товара из корзины
+  refreshIndices();
 }
 
 ***2. Классы представления без наследников: ***
@@ -135,11 +138,14 @@ class Page extends Component<IPage> {
   // constructor принимает родительский элемент и обработчик событий
   constructor(container: HTMLElement, protected events: IEvents);
 
-  // Сеттер для счётчика товаров в корзине
+  // set для счётчика товаров в корзине
   set counter(value: number);
 
-  // Сеттер для карточек товаров на странице
+  // set для карточек товаров на странице
   set store(items: HTMLElement[]);
+
+  // set для блокировки страницы
+  set locked(value: boolean)
 }
 
 Card: Класс представления карточки товара.
@@ -154,11 +160,15 @@ class Card extends Component<ICard> {
   set title(value: string);
   get title(): string;
 
+  // set и get для id
+  set id(value: string);
+  get id(): string;
+
    // set для цены
   set price(value: number | null);
 
   // set для категории
-  set category(value: Category);
+  set category(value: CategoryTitle);
 
   // set для кратинки
   set image(value: string);
@@ -174,6 +184,8 @@ class Order extends Form<IOrder> {
   // constructor принимает имя, родительский элемент и обработчик событий
   constructor(protected blockName: string, container: HTMLFormElement, protected events: IEvents);
 }
+// проверяем заполнены ли поля и делаем кнопку доступной
+checkButtonState()
 
 Contacts: Класс представления контактной информации или страницы контактов.
 
@@ -181,4 +193,7 @@ class Contacts extends Form<IContacts> {
   // constructor принимает родительский элемент и обработчик событий
   constructor(container: HTMLFormElement, events: IEvents);
 }
+
+// проверяем заполнены ли поля и делаем кнопку доступной
+ checkButton() 
 

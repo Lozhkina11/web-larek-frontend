@@ -1,13 +1,14 @@
 import { IEvents } from './base/events';
 import { Form } from './common/Form';
 
+
 /*
  * Интерфейс, описывающий окошко заказа товара
  * */
 export interface IOrder {
   address?: string;
   // Способ оплаты
-  typeOfPay?: string;
+  payment?: string;
   items?: string[];
   total?: null | number;
   email?: string;
@@ -45,8 +46,8 @@ export class Order extends Form<IOrder> {
       this._cash.addEventListener('click', () => {
         this._cash.classList.add('button_alt-active');
         this._card.classList.remove('button_alt-active');
-        this.onInputChange('typeOfPay', 'cash');
-        this.order.typeOfPay = 'cash';
+        this.onInputChange('payment', 'cash');
+        this.order.payment = 'cash';
         this.checkButtonState();
       });
     }
@@ -54,8 +55,8 @@ export class Order extends Form<IOrder> {
       this._card.addEventListener('click', () => {
         this._card.classList.add('button_alt-active');
         this._cash.classList.remove('button_alt-active');
-        this.onInputChange('typeOfPay', 'card');
-        this.order.typeOfPay = 'card';
+        this.onInputChange('payment', 'card');
+        this.order.payment = 'card';
         this.checkButtonState();
       });
     }
@@ -74,8 +75,7 @@ export class Order extends Form<IOrder> {
     }
   }
   checkButtonState() {
-    console.log(this.order);
-    const isFormValid = !!this.order.typeOfPay && !!this.order.address;
+    const isFormValid = !!this.order.payment && !!this.order.address;
     if (isFormValid) {
       this._button.removeAttribute('disabled');
     } else {
@@ -114,7 +114,7 @@ export class Contacts extends Form<IContacts> {
 
     this._phone.addEventListener('input', (e: Event) => {
       const target = e.target as HTMLInputElement;
-      this.order.phone = 'phone';
+      this.order.phone = target.value;
 
       this.onInputChange('phone', target.value);
 
@@ -124,7 +124,7 @@ export class Contacts extends Form<IContacts> {
     this._email.addEventListener('input', (e: Event) => {
       const target = e.target as HTMLInputElement;
 
-      this.order.email = 'email';
+      this.order.email = target.value;
       this.onInputChange('email', target.value);
 
       this.checkButton();
@@ -133,6 +133,7 @@ export class Contacts extends Form<IContacts> {
       events.emit('order:success', this.order);
     });
   }
+
   checkButton() {
     const isFormContactValid = !!this.order.email && !!this.order.phone;
     if (isFormContactValid) {

@@ -5,9 +5,13 @@ export type CategoryTitle =
   | 'дополнительное'
   | 'кнопка';
 
-export type Category = {
-  title: CategoryTitle;
-  color: 'green' | 'orange' | 'blue' | 'yellow' | 'purple';
+// export type Category = {
+//   title: CategoryTitle;
+//   color: 'green' | 'orange' | 'blue' | 'yellow' | 'purple';
+// };
+
+export type categoryChoicing = {
+  [Key in CategoryTitle]: string;
 };
 
 //описание самого товара, Card - оболочка
@@ -18,7 +22,7 @@ export interface IPill {
   title: string;
   description: string;
   price: number | null;
-  category: Category;
+  category: CategoryTitle;
   image: string;
   // был данный товар добавлен в корзину или нет
   selected: boolean;
@@ -44,7 +48,7 @@ type PaymentType = 'cash' | 'card';
 
 interface IOrder {
   items: string[];
-  typeOfPay: PaymentType;
+  payment: PaymentType;
   total: number | null;
   address: string;
   email: string;
@@ -52,12 +56,16 @@ interface IOrder {
 }
 
 export type IOrderForm = {
-  typeOfPay?: boolean;
+  payment?: boolean;
   address?: string;
   email?: string;
   phone?: string;
 };
 
+export interface IOrderResult {
+	id: string;
+	total: number;
+}
 // export type FormErrors = Partial<Record<keyof IOrderForm, string>>;
 
 export type IGlobalState = {
@@ -85,3 +93,7 @@ export interface IAppState {
 export type ApiAnswer = {
   items: IPill[];
 };
+
+export type ApiPostAnswer = {
+  total: number;
+}
