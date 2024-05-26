@@ -62,17 +62,8 @@ export type IOrderForm = {
   phone?: string;
 };
 
-export interface IOrderResult {
-	id: string;
-	total: number;
-}
 // export type FormErrors = Partial<Record<keyof IOrderForm, string>>;
 
-export type IGlobalState = {
-  cart: Pill[];
-  store: Pill[];
-  order: IOrder;
-};
 
 export interface IAppState {
   cart: Pill[];
@@ -93,7 +84,7 @@ export interface IAppState {
 export type ApiAnswer = {
   items: IPill[];
 };
-
-export type ApiPostAnswer = {
+export type ApiPostResponse = {
+  id: string;
   total: number;
-}
+};

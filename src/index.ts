@@ -1,24 +1,21 @@
 import './scss/styles.scss';
 
-import { API_URL, CDN_URL } from './utils/constants';
+import { API_URL } from './utils/constants';
 import { EventEmitter } from './components/base/events';
 import { AppState } from './components/AppData';
 import { Page } from './components/Page';
 import { cloneTemplate, ensureElement } from './utils/utils';
 import { Modal } from './components/common/Modal';
 import { Cart, StoreItemCart } from './components/common/Cart';
-import { ApiAnswer, IPill, ApiPostAnswer} from './types';
+import { IPill } from './types';
 import { Order, Contacts, IOrder } from './components/Order';
 import { Success } from './components/common/Success';
-import { Api } from './components/base/api';
-// import { WebLarekAPI } from './components/WebLarekAPI';
-
 import { StoreItemPreview, StoreItem } from './components/Card';
-// import { WebLarekAPI } from './components/WebLarekAPI';
+import { WebLarekAPI } from './components/WebLarekAPI';
 
 const events = new EventEmitter();
-// const api = new WebLarekAPI (API_URL, CDN_URL);
-const WebLarekAPI = new Api (API_URL);
+const api = new WebLarekAPI(API_URL);
+
 // Все шаблоны
 const cardPreviewTemplate = ensureElement<HTMLTemplateElement>('#card-preview');
 const successTemplate = ensureElement<HTMLTemplateElement>('#success');
@@ -27,16 +24,6 @@ const basketTemplate = ensureElement<HTMLTemplateElement>('#basket');
 const cardBasketTemplate = ensureElement<HTMLTemplateElement>('#card-basket');
 const cardCatalogTemplate = ensureElement<HTMLTemplateElement>('#card-catalog');
 const contactsTemplate = ensureElement<HTMLTemplateElement>('#contacts');
-
-const orderData: IOrder = {
-  address: '',
-  payment: '',
-  items: [],
-  total: null,
-  email: '',
-  phone: '',
-  step: 1,
-};
 
 // Модель данных приложения
 const appData = new AppState({}, events);
@@ -56,18 +43,15 @@ const success = new Success('order-success', cloneTemplate(successTemplate), {
 const order = new Order('order', cloneTemplate(orderTemplate), events);
 const contacts = new Contacts(cloneTemplate(contactsTemplate), events);
 
-// // Получение картинок с сервера 
-WebLarekAPI.get('/product') 
-  .then((response: ApiAnswer) => { 
-    appData.setStore(response.items as IPill[]); 
-  }) 
-  .catch((err) => { 
-    console.error(err); 
+// Получение картинок с сервера
+api
+  .getCardList()
+  .then((data) => {
+    appData.setStore(data);
+  })
+  .catch((err) => {
+    console.error(err);
   });
-
-// api 
-// .getCardList()
-// .then((data: IPill[]) => appData.setStore(data));
 
 // Изменились элементы каталога
 events.on('items:changed', () => {
@@ -156,7 +140,6 @@ events.on('basket:delete', (item: IPill) => {
   }
 });
 
-// // Оформить заказ
 events.on('basket:order', () => {
   modal.render({
     content: order.render({
@@ -169,14 +152,9 @@ events.on('basket:order', () => {
   order.checkButtonState();
 });
 
-events.on(
-  'order.payment:change',
-  (data: { field: string; value: string }) => {
-    // console.log(data);
-    appData.order.payment = data.value;
-    // order.valid = false;
-  }
-);
+events.on('order.payment:change', (data: { field: string; value: string }) => {
+  appData.order.payment = data.value;
+});
 
 events.on('order.address:change', (data: { field: string; value: string }) => {
   appData.order.address = data.value;
@@ -190,8 +168,6 @@ events.on('order.phone:change', (data: { field: string; value: string }) => {
   appData.order.phone = data.value;
 });
 
-// // Окно успешной покупки
-
 events.on('order:submit', (order: IOrder) => {
   appData.order.total = appData.getTotalCartPrice();
   appData.order.payment = order.payment;
@@ -203,39 +179,39 @@ events.on('order:submit', (order: IOrder) => {
       errors: [],
     }),
   });
+  
+  contacts.checkButton();
 });
 
-
-events.on('order:success', (order: IOrder) => {
-  
+// отправка формы на бэк и открытие окна успешной покупки
+events.on('order:success', (orderData: IOrder) => {
   appData.order.total = appData.getTotalCartPrice();
-  appData.order.phone = order.phone;
-  appData.order.email = order.email;
+  appData.order.phone = orderData.phone;
+  appData.order.email = orderData.email;
+
   appData.setItems();
   appData.clearCart(); // очистка корзины
   appData.setAllItemsButtonEvalableForOder(); // доступность кнопки оформления заказа
+  // отправка заказа на бэк
+  api
+    .createOrder(appData.order)
+    .then((data) => {
+      modal.render({
+        content: success.render({
+          total: data.total,
+        }),
+      });
+    })
+    .catch((err) => {
+      console.error(err);
+    });
+  appData.clearOder(); // очистка заказа
+  order.clearInputs();
+  contacts.clearInputs();
+});
 
-  WebLarekAPI.post('/order', appData.order)
-  .then((response:ApiPostAnswer)=> {
-    modal.render({
-      content: success.render({
-        total: response.total,
-      }),
-  })
-  })
- .catch((err) => {
-   console.error(err);
- });
-  });
-
-contacts.checkButton();
-
-
-
-
-// // Закрытие модального окна
+//  Закрытие модального окна
 events.on('modal:close', () => {
   page.locked = false;
-  appData.clearOder(); // очистка заказа
   page.counter = appData.getCartAmount(); // обновление количества позиций в корзине
 });

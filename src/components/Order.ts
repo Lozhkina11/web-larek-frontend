@@ -1,19 +1,16 @@
 import { IEvents } from './base/events';
 import { Form } from './common/Form';
 
-
 /*
  * Интерфейс, описывающий окошко заказа товара
  * */
 export interface IOrder {
   address?: string;
-  // Способ оплаты
   payment?: string;
   items?: string[];
   total?: null | number;
   email?: string;
   phone?: string;
-  step?: number;
 }
 
 /*
@@ -75,12 +72,26 @@ export class Order extends Form<IOrder> {
     }
   }
   checkButtonState() {
+    console.log('checkButtonState', this.order);
     const isFormValid = !!this.order.payment && !!this.order.address;
+
     if (isFormValid) {
       this._button.removeAttribute('disabled');
     } else {
       this._button.setAttribute('disabled', 'disabled');
     }
+  }
+
+  clearInputs() {
+    // Очистка поля адреса
+    this._address.value = '';
+    // Снятие активного состояния с кнопок выбора способа оплаты
+    this._card.classList.remove('button_alt-active');
+    this._cash.classList.remove('button_alt-active');
+
+    // Деактивация кнопки отправки
+    this._button.setAttribute('disabled', 'disabled');
+    this.order = {};
   }
 }
 
@@ -114,6 +125,7 @@ export class Contacts extends Form<IContacts> {
 
     this._phone.addEventListener('input', (e: Event) => {
       const target = e.target as HTMLInputElement;
+      // this.order.phone = 'phone';
       this.order.phone = target.value;
 
       this.onInputChange('phone', target.value);
@@ -124,6 +136,7 @@ export class Contacts extends Form<IContacts> {
     this._email.addEventListener('input', (e: Event) => {
       const target = e.target as HTMLInputElement;
 
+      // this.order.email = 'email';
       this.order.email = target.value;
       this.onInputChange('email', target.value);
 
@@ -132,8 +145,9 @@ export class Contacts extends Form<IContacts> {
     this._submit.addEventListener('click', () => {
       events.emit('order:success', this.order);
     });
-  }
 
+    this.checkButton();
+  }
   checkButton() {
     const isFormContactValid = !!this.order.email && !!this.order.phone;
     if (isFormContactValid) {
@@ -141,5 +155,15 @@ export class Contacts extends Form<IContacts> {
     } else {
       this._submit.setAttribute('disabled', 'disabled');
     }
+  }
+  clearInputs() {
+    // Очистка поля номера телефона
+    this._phone.value = '';
+    // очистка поля почты
+    this._email.value = '';
+    // Снятие активного состояния с кнопки отправки
+    this._submit.setAttribute('disabled', 'disabled');
+
+    this.order = {};
   }
 }
